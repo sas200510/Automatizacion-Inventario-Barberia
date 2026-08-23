@@ -1,49 +1,49 @@
-# Sistema de Gestion de Barberia
+# Barbershop Management System
 
-Aplicacion de consola desarrollada en C++ para administrar clientes, productos, servicios, empleados y citas de una barberia.
+C++ console application developed to manage barbershop clients, products, services, employees, and appointments.
 
-## Funcionalidades
+## Features
 
-- Registro, busqueda, edicion y baja de clientes.
-- Gestion de inventario de productos y alertas de stock bajo.
-- Catalogo de servicios.
-- Registro y autenticacion de empleados.
-- Agendamiento, reprogramacion y cancelacion de citas.
-- Reportes y consultas generales.
-- Validaciones y excepciones personalizadas para controlar errores.
+- Client registration, search, editing, and deactivation.
+- Product inventory management and low-stock alerts.
+- Service catalog.
+- Employee registration and authentication.
+- Appointment scheduling, rescheduling, and cancellation.
+- General reports and queries.
+- Custom validations and exceptions for error handling.
 
-## Requisitos
+## Requirements
 
 - Windows.
-- Compilador compatible con C++17, por ejemplo MinGW-w64/TDM-GCC.
+- C++17-compatible compiler, such as MinGW-w64/TDM-GCC.
 
-## Compilacion
+## Compilation
 
-El codigo fuente principal se encuentra en la carpeta superior, junto a este directorio:
+The main source code is located in the parent folder, alongside this directory:
 
 ```powershell
 cd ".."
 g++ -std=c++17 -Wall -Wextra gestionBarberiaFINAL.cpp -o output\gestionBarberia.exe
 ```
 
-## Ejecucion
+## Execution
 
-Desde la carpeta del proyecto:
+From the project folder:
 
 ```powershell
 .\output\gestionBarberia.exe
 ```
 
-Al iniciar, el sistema solicita registrar al menos un empleado. Luego se debe iniciar sesion con las credenciales creadas durante ese registro.
+When starting, the system asks you to register at least one employee. You must then log in using the credentials created during that registration.
 
-## Estructura
+## Structure
 
 ```text
 .
-|-- gestionBarberiaFINAL.cpp   # Codigo fuente principal
-|-- gestionBarberia.cpp        # Version anterior
+|-- gestionBarberiaFINAL.cpp   # Main source code
+|-- gestionBarberia.cpp        # Previous version
 |-- output/
     |-- README.md
     |-- .gitignore
-    |-- gestionBarberia.exe     # Ejecutable generado
+    |-- gestionBarberia.exe     # Generated executable
 ```

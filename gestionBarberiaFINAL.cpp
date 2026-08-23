@@ -1,5 +1,5 @@
 //Isaac Espinosa 00342611 - Sebastian Alcoser 00337279
-//PROYECTO FINAL - SISTEMA DE BARBERIA
+//FINAL PROJECT - BARBERSHOP SYSTEM
 #include <iostream>
 #include <vector>
 #include <string>
@@ -7,148 +7,148 @@
 #include <iomanip>
 using namespace std;
 
-//-----Definiciones de Clases y Funciones CRUD-----
+//-----Class and CRUD Function Definitions-----
 
-// ==================== EXCEPCIONES PERSONALIZADAS ====================
+// ==================== CUSTOM EXCEPTIONS ====================
 class NotFoundException : public runtime_error {
 public:
-    NotFoundException(const string& msg) : runtime_error(msg) {}
+    NotFoundException(const string& message) : runtime_error(message) {}
 };
 
 class ValidationException : public runtime_error {
 public:
-    ValidationException(const string& msg) : runtime_error(msg) {}
+    ValidationException(const string& message) : runtime_error(message) {}
 };
 
 class OverlapException : public runtime_error {
 public:
-    OverlapException(const string& msg) : runtime_error(msg) {}
+    OverlapException(const string& message) : runtime_error(message) {}
 };
 
-// ==================== INTERFAZ AUTENTICABLE ====================
+// ==================== AUTHENTICABLE INTERFACE ====================
 class Autenticable {
 public: 
-    virtual bool autenticar(const string& user, const string& pass) const = 0;
+    virtual bool autenticar(const string& username, const string& password) const = 0;
     virtual ~Autenticable() = default;
 };
 
-// ==================== CLASE ABSTRACTA PERSONA ====================
+// ==================== ABSTRACT PERSON CLASS ====================
 class Persona {
 protected: 
     int id;
-    string nombre;
-    string telefono;
+    string name;
+    string phone;
 public: 
-   Persona(int id, const string& nombre, const string& telefono)
-    : id(id), nombre(nombre)
+    Persona(int id, const string& name, const string& phone)
+    : id(id), name(name)
 {
-    setTelefono(telefono);  
+    setTelefono(phone);
 }
 
     virtual ~Persona() = default;
     virtual string rol() const = 0;
     
     int getId() const { return id; }
-    const string& getNombre() const { return nombre; }
-    const string& getTelefono() const { return telefono; }
-    void setNombre(const string& n) { 
-        if (n.empty()) throw ValidationException("El nombre no puede estar vacio");
-        nombre = n; 
+    const string& getNombre() const { return name; }
+    const string& getTelefono() const { return phone; }
+    void setNombre(const string& newName) {
+        if (newName.empty()) throw ValidationException("El nombre no puede estar vacio");
+        name = newName;
     }
-    bool esNumero(const string& s) {
-    if (s.empty()) return false;
-    for (char c : s) {
-        if (c < '0' || c > '9') return false;
+    bool esNumero(const string& value) {
+    if (value.empty()) return false;
+    for (char character : value) {
+        if (character < '0' || character > '9') return false;
     }
     return true;
 }
 
-    void setTelefono(const string& t) {
-    if (t.empty())
+    void setTelefono(const string& newPhone) {
+    if (newPhone.empty())
         throw ValidationException("El telefono no puede estar vacio");
 
-    if (!esNumero(t))
+    if (!esNumero(newPhone))
         throw ValidationException("El telefono debe contener solo numeros");
 
-    telefono = t;
+    phone = newPhone;
 }
 
 };
 
-// ==================== CLASE CLIENTE ====================
+// ==================== CLIENT CLASS ====================
 class Cliente : public Persona {
 private:
     string email;
-    string notas;
-    bool activo;
+    string notes;
+    bool active;
 public:
-    Cliente(int id, const string& nombre, const string& telefono, const string& email, const string& notas)
-        : Persona(id, nombre, telefono), email(email), notas(notas), activo(true) {
+    Cliente(int id, const string& name, const string& phone, const string& email, const string& notes)
+        : Persona(id, name, phone), email(email), notes(notes), active(true) {
         validarEmail(email);
     }
     
     string rol() const override { return "Cliente"; }
     
-    void validarEmail(const string& e) {
-        bool contieneArroba = false;
-        for (char c : e) {
-            if (c == '@') {
-                contieneArroba = true;
+    void validarEmail(const string& emailAddress) {
+        bool containsAt = false;
+        for (char character : emailAddress) {
+            if (character == '@') {
+                containsAt = true;
                 break;
             }
         }
-        if (!contieneArroba) throw ValidationException("Email invalido: debe contener @");
+        if (!containsAt) throw ValidationException("Email invalido: debe contener @");
     }
     
     const string& getEmail() const { return email; }
-    const string& getNotas() const { return notas; }
-    bool isActivo() const { return activo; }
+    const string& getNotas() const { return notes; }
+    bool isActivo() const { return active; }
     
-    void setEmail(const string& e) { 
-        validarEmail(e);
-        email = e; 
+    void setEmail(const string& newEmail) {
+        validarEmail(newEmail);
+        email = newEmail;
     }
-    void setNotas(const string& n) { notas = n; }
-    void setActivo(bool a) { activo = a; }
+    void setNotas(const string& newNotes) { notes = newNotes; }
+    void setActivo(bool isActive) { active = isActive; }
     
     string toString() const {
-        return "Cliente ID: " + to_string(id) + ", Nombre: " + nombre + 
-               ", Email: " + email + ", Telefono: " + telefono + 
-               ", Activo: " + (activo ? "Si" : "No");
+         return "Cliente ID: " + to_string(id) + ", Nombre: " + name +
+             ", Email: " + email + ", Telefono: " + phone +
+             ", Activo: " + (active ? "Si" : "No");
     }
 };
 
-// ==================== CLASE EMPLEADO ====================
+// ==================== EMPLOYEE CLASS ====================
 class Empleado : public Persona, public Autenticable {
 private: 
-    string usuario;
-    string contrasena;
-    string cargo;
+    string username;
+    string password;
+    string position;
 public: 
-    Empleado(int id, const string& nombre, const string& telefono, 
-             const string& usuario, const string& contrasena, const string& cargo)
-        : Persona(id, nombre, telefono), usuario(usuario), 
-          contrasena(contrasena), cargo(cargo) {}
+        Empleado(int id, const string& name, const string& phone,
+                         const string& username, const string& password, const string& position)
+                : Persona(id, name, phone), username(username),
+                    password(password), position(position) {}
     
     bool autenticar(const string& user, const string& pass) const override {
-        return user == usuario && pass == contrasena;
+        return user == username && pass == password;
     }
     
     string rol() const override { return "Empleado"; }
-    const string& getCargo() const { return cargo; }
-    const string& getUsuario() const { return usuario; }
+    const string& getCargo() const { return position; }
+    const string& getUsuario() const { return username; }
 };
 
-// ==================== CLASE ABSTRACTA ITEM ====================
+// ==================== ABSTRACT ITEM CLASS ====================
 class Item {
 protected:
     int id;
-    string nombre;
-    double precio;
+    string name;
+    double price;
 public:
-    Item(int id, const string& nombre, double precio) 
-        : id(id), nombre(nombre), precio(precio) {
-        if (precio < 0) throw ValidationException("El precio no puede ser negativo");
+    Item(int id, const string& name, double price)
+        : id(id), name(name), price(price) {
+        if (price < 0) throw ValidationException("El precio no puede ser negativo");
     }
     virtual ~Item() = default;
     
@@ -156,119 +156,119 @@ public:
     virtual string toString() const = 0;
     
     int getId() const { return id; }
-    const string& getNombre() const { return nombre; }
-    double getPrecio() const { return precio; }
+    const string& getNombre() const { return name; }
+    double getPrecio() const { return price; }
     
-    void setNombre(const string& n) { 
-        if (n.empty()) throw ValidationException("El nombre no puede estar vacio");
-        nombre = n; 
+    void setNombre(const string& newName) {
+        if (newName.empty()) throw ValidationException("El nombre no puede estar vacio");
+        name = newName;
     }
-    void setPrecio(double p) { 
-        if (p < 0) throw ValidationException("El precio no puede ser negativo");
-        precio = p; 
+    void setPrecio(double newPrice) {
+        if (newPrice < 0) throw ValidationException("El precio no puede ser negativo");
+        price = newPrice;
     }
 };
 
-// ==================== CLASE PRODUCTO ====================
+// ==================== PRODUCT CLASS ====================
 class Producto : public Item {
 private:
     int stock;
 public:
-    Producto(int id, const string& nombre, double precio, int stock)
-        : Item(id, nombre, precio), stock(stock) {
+    Producto(int id, const string& name, double price, int stock)
+        : Item(id, name, price), stock(stock) {
         if (stock < 0) throw ValidationException("El stock no puede ser negativo");
     }
     
-    double precioFinal() const override { return precio; }
+    double precioFinal() const override { return price; }
     
     string toString() const override {
-        return "Producto ID: " + to_string(id) + ", Nombre: " + nombre + 
-               ", Precio: $" + to_string(precio) + ", Stock: " + to_string(stock);
+        return "Producto ID: " + to_string(id) + ", Nombre: " + name +
+             ", Precio: $" + to_string(price) + ", Stock: " + to_string(stock);
     }
     
     int getStock() const { return stock; }
-    void setStock(int s) { 
-        if (s < 0) throw ValidationException("El stock no puede ser negativo");
-        stock = s; 
+    void setStock(int newStock) {
+        if (newStock < 0) throw ValidationException("El stock no puede ser negativo");
+        stock = newStock;
     }
 };
 
-// ==================== CLASE SERVICIO ====================
+// ==================== SERVICE CLASS ====================
 class Servicio : public Item {
 private:
-    int duracionMin;
+    int durationMinutes;
 public:
-    Servicio(int id, const string& nombre, double precio, int duracionMin)
-        : Item(id, nombre, precio), duracionMin(duracionMin) {
-        if (duracionMin <= 0) throw ValidationException("La duracion debe ser positiva");
+    Servicio(int id, const string& name, double price, int durationMinutes)
+        : Item(id, name, price), durationMinutes(durationMinutes) {
+        if (durationMinutes <= 0) throw ValidationException("La duracion debe ser positiva");
     }
     
-    double precioFinal() const override { return precio; }
+    double precioFinal() const override { return price; }
     
     string toString() const override {
-        return "Servicio ID: " + to_string(id) + ", Nombre: " + nombre + 
-               ", Precio: $" + to_string(precio) + ", Duracion: " + to_string(duracionMin) + " min";
+        return "Servicio ID: " + to_string(id) + ", Nombre: " + name +
+             ", Precio: $" + to_string(price) + ", Duracion: " + to_string(durationMinutes) + " min";
     }
     
-    int getDuracionMin() const { return duracionMin; }
-    void setDuracionMin(int d) { 
-        if (d <= 0) throw ValidationException("La duracion debe ser positiva");
-        duracionMin = d; 
+    int getDuracionMin() const { return durationMinutes; }
+    void setDuracionMin(int newDuration) {
+        if (newDuration <= 0) throw ValidationException("La duracion debe ser positiva");
+        durationMinutes = newDuration;
     }
 };
 
-// ==================== CLASE CITA ====================
+// ==================== APPOINTMENT CLASS ====================
 class Cita {
 private:
     int id;
-    Cliente* cliente;
-    Servicio* servicio;
-    Empleado* empleado;
-    string fechaHora;
-    bool confirmada;
+    Cliente* client;
+    Servicio* service;
+    Empleado* employee;
+    string dateTime;
+    bool confirmed;
 public:
-    Cita(int id, Cliente* cliente, Servicio* servicio, Empleado* empleado, const string& fechaHora)
-        : id(id), cliente(cliente), servicio(servicio), empleado(empleado), 
-          fechaHora(fechaHora), confirmada(true) {}
+        Cita(int id, Cliente* client, Servicio* service, Empleado* employee, const string& dateTime)
+                : id(id), client(client), service(service), employee(employee),
+                    dateTime(dateTime), confirmed(true) {}
     
     int getId() const { return id; }
-    Cliente* getCliente() const { return cliente; }
-    Servicio* getServicio() const { return servicio; }
-    Empleado* getEmpleado() const { return empleado; }
-    const string& getFechaHora() const { return fechaHora; }
-    bool isConfirmada() const { return confirmada; }
+    Cliente* getCliente() const { return client; }
+    Servicio* getServicio() const { return service; }
+    Empleado* getEmpleado() const { return employee; }
+    const string& getFechaHora() const { return dateTime; }
+    bool isConfirmada() const { return confirmed; }
     
-    void setFechaHora(const string& fh) { fechaHora = fh; }
-    void setConfirmada(bool c) { confirmada = c; }
+    void setFechaHora(const string& newDateTime) { dateTime = newDateTime; }
+    void setConfirmada(bool isConfirmed) { confirmed = isConfirmed; }
     
     string toString() const {
         return "Cita ID: " + to_string(id) + 
-               ", Cliente: " + cliente->getNombre() + 
-               ", Servicio: " + servicio->getNombre() + 
-               ", Empleado: " + empleado->getNombre() + 
-               ", Fecha/Hora: " + fechaHora +
-               ", Estado: " + (confirmada ? "Confirmada" : "Cancelada");
+               ", Cliente: " + client->getNombre() +
+               ", Servicio: " + service->getNombre() +
+               ", Empleado: " + employee->getNombre() +
+               ", Fecha/Hora: " + dateTime +
+               ", Estado: " + (confirmed ? "Confirmada" : "Cancelada");
     }
 };
 
-// ==================== CLASE TEMPLATE GESTOR ====================
+// ==================== MANAGER TEMPLATE CLASS ====================
 template <typename T>
 class Gestor {
 protected:
-    vector<T*> coleccion;
+    vector<T*> collection;
 public:
     virtual ~Gestor() {
-        for (auto item : coleccion) {
+        for (auto item : collection) {
             delete item;
         }
     }
     
     void agregar(T* item) {
-        coleccion.push_back(item);
+        collection.push_back(item);
     }
     
     T* buscar(int id) {
-        for (auto item : coleccion) {
+        for (auto item : collection) {
             if (item->getId() == id) {
                 return item;
             }
@@ -277,35 +277,35 @@ public:
     }
     
     void listar() const {
-        if (coleccion.empty()) {
+        if (collection.empty()) {
             cout << "No hay elementos registrados.\n";
             return;
         }
-        for (const auto& item : coleccion) {
+        for (const auto& item : collection) {
             cout << item->toString() << endl;
         }
     }
     
-    const vector<T*>& getColeccion() const { return coleccion; }
+    const vector<T*>& getColeccion() const { return collection; }
 };
 
-// ==================== CLASE INVENTARIO ====================
+// ==================== INVENTORY CLASS ====================
 class Inventario : public Gestor<Item> {
 public:
     void editar(int id) {
         try {
             Item* item = buscar(id);
-            double nuevoPrecio;
+            double newPrice;
             cout << "Nuevo precio: ";
-            cin >> nuevoPrecio;
-            item->setPrecio(nuevoPrecio);
+            cin >> newPrice;
+            item->setPrecio(newPrice);
             
             Producto* producto = dynamic_cast<Producto*>(item);
             if (producto) {
-                int nuevoStock;
+                int newStock;
                 cout << "Nuevo stock: ";
-                cin >> nuevoStock;
-                producto->setStock(nuevoStock);
+                cin >> newStock;
+                producto->setStock(newStock);
             }
             
             cout << "Item actualizado exitosamente.\n";
@@ -316,11 +316,11 @@ public:
     
     void eliminar(int id) {
         try {
-            Item* item = buscar(id);
-            for (size_t i = 0; i < coleccion.size(); ++i) {
-                if (coleccion[i]->getId() == id) {
-                    delete coleccion[i];
-                    coleccion.erase(coleccion.begin() + i);
+            buscar(id);
+            for (size_t i = 0; i < collection.size(); ++i) {
+                if (collection[i]->getId() == id) {
+                    delete collection[i];
+                    collection.erase(collection.begin() + i);
                     cout << "Item eliminado exitosamente.\n";
                     return;
                 }
@@ -330,54 +330,54 @@ public:
         }
     }
     
-    void buscarPorNombre(const string& nombre) const {
-        bool encontrado = false;
-        for (const auto& item : coleccion) {
-            if (item->getNombre().find(nombre) != string::npos) {
+    void buscarPorNombre(const string& name) const {
+        bool found = false;
+        for (const auto& item : collection) {
+            if (item->getNombre().find(name) != string::npos) {
                 cout << item->toString() << endl;
-                encontrado = true;
+                found = true;
             }
         }
-        if (!encontrado) {
+        if (!found) {
             cout << "No se encontraron items con ese nombre.\n";
         }
     }
     
     void verificarStockBajo() const {
         cout << "\n=== PRODUCTOS CON STOCK BAJO (<5) ===\n";
-        bool hayBajoStock = false;
-        for (const auto& item : coleccion) {
-            Producto* producto = dynamic_cast<Producto*>(item);
-            if (producto && producto->getStock() < 5) {
-                cout << "ALERTA: " << producto->toString() << endl;
-                hayBajoStock = true;
+        bool hasLowStock = false;
+        for (const auto& item : collection) {
+            Producto* product = dynamic_cast<Producto*>(item);
+            if (product && product->getStock() < 5) {
+                cout << "ALERTA: " << product->toString() << endl;
+                hasLowStock = true;
             }
         }
-        if (!hayBajoStock) {
+        if (!hasLowStock) {
             cout << "Todos los productos tienen stock suficiente.\n";
         }
     }
 };
 
-// ==================== CLASE AGENDA ====================
+// ==================== SCHEDULE CLASS ====================
 class Agenda : public Gestor<Cita> {
 public:
-    void agendar(Cita* cita) {
+    void agendar(Cita* appointment) {
         try {
-            confirmaDisponibilidad(cita);
-            agregar(cita);
-            cout << "Cita agendada exitosamente con ID: " << cita->getId() << endl;
+            confirmaDisponibilidad(appointment);
+            agregar(appointment);
+            cout << "Cita agendada exitosamente con ID: " << appointment->getId() << endl;
         } catch (const exception& e) {
             cout << "Error al agendar: " << e.what() << endl;
-            delete cita;
+            delete appointment;
         }
     }
     
-    void confirmaDisponibilidad(Cita* nuevaCita) {
-        for (const auto& cita : coleccion) {
-            if (cita->getEmpleado()->getId() == nuevaCita->getEmpleado()->getId() &&
-                cita->getFechaHora() == nuevaCita->getFechaHora() &&
-                cita->isConfirmada()) {
+    void confirmaDisponibilidad(Cita* newAppointment) {
+        for (const auto& appointment : collection) {
+            if (appointment->getEmpleado()->getId() == newAppointment->getEmpleado()->getId() &&
+                appointment->getFechaHora() == newAppointment->getFechaHora() &&
+                appointment->isConfirmada()) {
                 throw OverlapException("El empleado ya tiene una cita en ese horario");
             }
         }
@@ -386,11 +386,11 @@ public:
     void reprogramar(int id) {
         try {
             Cita* cita = buscar(id);
-            string nuevaFechaHora;
+            string newDateTime;
             cout << "Nueva fecha/hora (formato: DD/MM/YYYY HH:MM): ";
             cin.ignore();
-            getline(cin, nuevaFechaHora);
-            cita->setFechaHora(nuevaFechaHora);
+            getline(cin, newDateTime);
+            cita->setFechaHora(newDateTime);
             confirmaDisponibilidad(cita);
             cout << "Cita reprogramada exitosamente.\n";
         } catch (const exception& e) {
@@ -409,57 +409,57 @@ public:
     }
     
     void listarPorEmpleado(int empId) const {
-        bool encontrado = false;
-        for (const auto& cita : coleccion) {
-            if (cita->getEmpleado()->getId() == empId && cita->isConfirmada()) {
-                cout << cita->toString() << endl;
-                encontrado = true;
+        bool found = false;
+        for (const auto& appointment : collection) {
+            if (appointment->getEmpleado()->getId() == empId && appointment->isConfirmada()) {
+                cout << appointment->toString() << endl;
+                found = true;
             }
         }
-        if (!encontrado) {
+        if (!found) {
             cout << "No hay citas para ese empleado.\n";
         }
     }
 };
 
-// ==================== VECTORES GLOBALES ====================
-vector<Cliente*> clientes;
-vector<Empleado*> empleados;
-Inventario inventario;
-Agenda agenda;
-int siguienteIdCita = 1;
+// ==================== GLOBAL VECTORS ====================
+vector<Cliente*> clients;
+vector<Empleado*> employees;
+Inventario inventory;
+Agenda schedule;
+int nextAppointmentId = 1;
 
-// ==================== FUNCIONES CRUD CLIENTES ====================
+// ==================== CLIENT CRUD FUNCTIONS ====================
 void registrarCliente() {
     try {
         int id;
-        string nombre, telefono, email, notas;
+        string name, phone, email, notes;
         
         cout << "ID unico: ";
         cin >> id;
         
-        for (auto c : clientes) {
-            if (c->getId() == id) {
+        for (auto client : clients) {
+            if (client->getId() == id) {
                 throw ValidationException("El ID ya existe");
             }
         }
         
         cin.ignore();
         cout << "Nombre: ";
-        getline(cin, nombre);
-        if (nombre.empty()) throw ValidationException("El nombre no puede estar vacio");
+        getline(cin, name);
+        if (name.empty()) throw ValidationException("El nombre no puede estar vacio");
         
         cout << "Telefono: ";
-        getline(cin, telefono);
-        if (telefono.empty()) throw ValidationException("El telefono no puede estar vacio");
+        getline(cin, phone);
+        if (phone.empty()) throw ValidationException("El telefono no puede estar vacio");
         
         cout << "Email: ";
         getline(cin, email);
         
         cout << "Notas: ";
-        getline(cin, notas);
+        getline(cin, notes);
         
-        clientes.push_back(new Cliente(id, nombre, telefono, email, notas));
+        clients.push_back(new Cliente(id, name, phone, email, notes));
         cout << "Cliente registrado exitosamente.\n";
     } catch (const exception& e) {
         cout << "Error: " << e.what() << endl;
@@ -467,20 +467,20 @@ void registrarCliente() {
 }
 
 void buscarCliente() {
-    string busqueda;
+    string searchTerm;
     cout << "Buscar por nombre o ID: ";
     cin.ignore();
-    getline(cin, busqueda);
+    getline(cin, searchTerm);
     
-    bool encontrado = false;
-    for (auto c : clientes) {
-        if (c->getNombre().find(busqueda) != string::npos || 
-            to_string(c->getId()) == busqueda) {
-            cout << c->toString() << endl;
-            encontrado = true;
+    bool found = false;
+    for (auto client : clients) {
+        if (client->getNombre().find(searchTerm) != string::npos ||
+            to_string(client->getId()) == searchTerm) {
+            cout << client->toString() << endl;
+            found = true;
         }
     }
-    if (!encontrado) {
+    if (!found) {
         cout << "No se encontraron clientes.\n";
     }
 }
@@ -491,28 +491,28 @@ void editarCliente() {
         cout << "ID del cliente a editar: ";
         cin >> id;
         
-        Cliente* cliente = nullptr;
-        for (auto c : clientes) {
-            if (c->getId() == id) {
-                cliente = c;
+        Cliente* client = nullptr;
+        for (auto storedClient : clients) {
+            if (storedClient->getId() == id) {
+                client = storedClient;
                 break;
             }
         }
         
-        if (!cliente) throw NotFoundException("Cliente no encontrado");
+        if (!client) throw NotFoundException("Cliente no encontrado");
         
-        string nuevoTelefono, nuevasNotas, nuevoEmail;
+        string newPhone, newNotes, newEmail;
         cin.ignore();
-        cout << "Nuevo telefono (actual: " << cliente->getTelefono() << "): ";
-        getline(cin, nuevoTelefono);
-        cout << "Nuevo email (actual: " << cliente->getEmail() << "): ";
-        getline(cin, nuevoEmail);
+        cout << "Nuevo telefono (actual: " << client->getTelefono() << "): ";
+        getline(cin, newPhone);
+        cout << "Nuevo email (actual: " << client->getEmail() << "): ";
+        getline(cin, newEmail);
         cout << "Nuevas notas: ";
-        getline(cin, nuevasNotas);
+        getline(cin, newNotes);
         
-        cliente->setTelefono(nuevoTelefono);
-        cliente->setEmail(nuevoEmail);
-        cliente->setNotas(nuevasNotas);
+        client->setTelefono(newPhone);
+        client->setEmail(newEmail);
+        client->setNotas(newNotes);
         
         cout << "Cliente actualizado exitosamente.\n";
     } catch (const exception& e) {
@@ -526,17 +526,17 @@ void eliminarCliente() {
         cout << "ID del cliente a dar de baja: ";
         cin >> id;
         
-        Cliente* cliente = nullptr;
-        for (auto c : clientes) {
-            if (c->getId() == id) {
-                cliente = c;
+        Cliente* client = nullptr;
+        for (auto storedClient : clients) {
+            if (storedClient->getId() == id) {
+                client = storedClient;
                 break;
             }
         }
         
-        if (!cliente) throw NotFoundException("Cliente no encontrado");
+        if (!client) throw NotFoundException("Cliente no encontrado");
         
-        cliente->setActivo(false);
+        client->setActivo(false);
         cout << "Cliente dado de baja (inactivo). Su historial se conserva.\n";
     } catch (const exception& e) {
         cout << "Error: " << e.what() << endl;
@@ -549,17 +549,17 @@ void activarCliente() {
         cout << "ID del cliente a activar: ";
         cin >> id;
         
-        Cliente* cliente = nullptr;
-        for (auto c : clientes) {
-            if (c->getId() == id) {
-                cliente = c;
+        Cliente* client = nullptr;
+        for (auto storedClient : clients) {
+            if (storedClient->getId() == id) {
+                client = storedClient;
                 break;
             }
         }
         
-        if (!cliente) throw NotFoundException("Cliente no encontrado");
+        if (!client) throw NotFoundException("Cliente no encontrado");
         
-        cliente->setActivo(true);
+        client->setActivo(true);
         cout << "Cliente nuevamente activo. Su historial se conserva.\n";
     } catch (const exception& e) {
         cout << "Error: " << e.what() << endl;
@@ -567,44 +567,44 @@ void activarCliente() {
 }
 
 void listarClientes() {
-    if (clientes.empty()) {
+    if (clients.empty()) {
         cout << "No hay clientes registrados.\n";
         return;
     }
     cout << "\n=== LISTA DE CLIENTES ===\n";
-    for (auto c : clientes) {
-        if (c->isActivo()) {
-            cout << c->toString() << endl;
+    for (auto client : clients) {
+        if (client->isActivo()) {
+            cout << client->toString() << endl;
         }
     }
 }
 
-// ==================== FUNCIONES CRUD PRODUCTOS ====================
+// ==================== PRODUCT CRUD FUNCTIONS ====================
 void registrarProducto() {
     try {
         int id, stock;
-        string nombre;
-        double precio;
+        string name;
+        double price;
         
         cout << "ID unico: ";
         cin >> id;
         
         try {
-            inventario.buscar(id);
+            inventory.buscar(id);
             throw ValidationException("El ID ya existe");
         } catch (const NotFoundException&) {
-            // ID no existe, podemos continuar
+            // ID does not exist, so we can continue.
         }
         
         cin.ignore();
         cout << "Nombre: ";
-        getline(cin, nombre);
+        getline(cin, name);
         cout << "Precio: ";
-        cin >> precio;
+        cin >> price;
         cout << "Stock: ";
         cin >> stock;
         
-        inventario.agregar(new Producto(id, nombre, precio, stock));
+        inventory.agregar(new Producto(id, name, price, stock));
         cout << "Producto registrado exitosamente.\n";
     } catch (const exception& e) {
         cout << "Error: " << e.what() << endl;
@@ -613,101 +613,101 @@ void registrarProducto() {
 
 void registrarServicio() {
     try {
-        int id, duracion;
-        string nombre;
-        double precio;
+        int id, duration;
+        string name;
+        double price;
         
         cout << "ID unico: ";
         cin >> id;
         
         try {
-            inventario.buscar(id);
+            inventory.buscar(id);
             throw ValidationException("El ID ya existe");
         } catch (const NotFoundException&) {
-            // ID no existe, podemos continuar
+            // ID does not exist, so we can continue.
         }
         
         cin.ignore();
         cout << "Nombre: ";
-        getline(cin, nombre);
+        getline(cin, name);
         cout << "Precio: ";
-        cin >> precio;
+        cin >> price;
         cout << "Duracion (minutos): ";
-        cin >> duracion;
+        cin >> duration;
         
-        inventario.agregar(new Servicio(id, nombre, precio, duracion));
+        inventory.agregar(new Servicio(id, name, price, duration));
         cout << "Servicio registrado exitosamente.\n";
     } catch (const exception& e) {
         cout << "Error: " << e.what() << endl;
     }
 }
 
-// ==================== FUNCIONES CRUD CITAS ====================
+// ==================== APPOINTMENT CRUD FUNCTIONS ====================
 void agendarCita() {
     try {
-        if (clientes.empty()) {
+        if (clients.empty()) {
             cout << "No hay clientes registrados.\n";
             return;
         }
-        if (empleados.empty()) {
+        if (employees.empty()) {
             cout << "No hay empleados registrados.\n";
             return;
         }
         
-        int clienteId, servicioId, empleadoId;
-        string fechaHora;
+        int clientId, serviceId, employeeId;
+        string dateTime;
         
         cout << "\n=== CLIENTES DISPONIBLES ===\n";
         listarClientes();
         cout << "ID del cliente: ";
-        cin >> clienteId;
+        cin >> clientId;
         
-        Cliente* cliente = nullptr;
-        for (auto c : clientes) {
-            if (c->getId() == clienteId && c->isActivo()) {
-                cliente = c;
+        Cliente* client = nullptr;
+        for (auto clientItem : clients) {
+            if (clientItem->getId() == clientId && clientItem->isActivo()) {
+            client = clientItem;
                 break;
             }
         }
-        if (!cliente) throw NotFoundException("Cliente no encontrado o inactivo");
+        if (!client) throw NotFoundException("Cliente no encontrado o inactivo");
         
         cout << "\n=== SERVICIOS DISPONIBLES ===\n";
-        for (const auto& item : inventario.getColeccion()) {
-            Servicio* servicio = dynamic_cast<Servicio*>(item);
-            if (servicio) {
-                cout << servicio->toString() << endl;
+        for (const auto& item : inventory.getColeccion()) {
+            Servicio* service = dynamic_cast<Servicio*>(item);
+            if (service) {
+                cout << service->toString() << endl;
             }
         }
         cout << "ID del servicio: ";
-        cin >> servicioId;
+        cin >> serviceId;
         
-        Item* item = inventario.buscar(servicioId);
-        Servicio* servicio = dynamic_cast<Servicio*>(item);
-        if (!servicio) throw ValidationException("El ID no corresponde a un servicio");
+        Item* item = inventory.buscar(serviceId);
+        Servicio* service = dynamic_cast<Servicio*>(item);
+        if (!service) throw ValidationException("El ID no corresponde a un servicio");
         
         cout << "\n=== EMPLEADOS DISPONIBLES ===\n";
-        for (auto e : empleados) {
-            cout << "ID: " << e->getId() << ", Nombre: " << e->getNombre() 
-                 << ", Cargo: " << e->getCargo() << endl;
+        for (auto employee : employees) {
+            cout << "ID: " << employee->getId() << ", Nombre: " << employee->getNombre()
+                 << ", Cargo: " << employee->getCargo() << endl;
         }
         cout << "ID del empleado: ";
-        cin >> empleadoId;
+        cin >> employeeId;
         
-        Empleado* empleado = nullptr;
-        for (auto e : empleados) {
-            if (e->getId() == empleadoId) {
-                empleado = e;
+        Empleado* employee = nullptr;
+        for (auto employeeItem : employees) {
+            if (employeeItem->getId() == employeeId) {
+            employee = employeeItem;
                 break;
             }
         }
-        if (!empleado) throw NotFoundException("Empleado no encontrado");
+        if (!employee) throw NotFoundException("Empleado no encontrado");
         
         cin.ignore();
         cout << "Fecha/hora (formato: DD/MM/YYYY HH:MM): ";
-        getline(cin, fechaHora);
+        getline(cin, dateTime);
         
-        Cita* nuevaCita = new Cita(siguienteIdCita++, cliente, servicio, empleado, fechaHora);
-        agenda.agendar(nuevaCita);
+        Cita* newAppointment = new Cita(nextAppointmentId++, client, service, employee, dateTime);
+        schedule.agendar(newAppointment);
         
     } catch (const exception& e) {
         cout << "Error: " << e.what() << endl;
@@ -715,52 +715,52 @@ void agendarCita() {
 }
 
 void registrarEmpleados() {
-    int cantidad;
+    int quantity;
     cout << "Cuantos empleados desea registrar?: ";
-    cin >> cantidad;
+    cin >> quantity;
 
-    for (int i = 0; i < cantidad; ++i) {
+    for (int index = 0; index < quantity; ++index) {
         try {
             int id;
-            string nombre, telefono, usuario, contrasena, cargo;
+            string name, phone, username, password, position;
 
-            cout << "\n=== Empleado " << (i + 1) << " ===\n";
+            cout << "\n=== Empleado " << (index + 1) << " ===\n";
             cout << "ID: ";
             cin >> id;
             
-            for (auto e : empleados) {
-                if (e->getId() == id) {
+            for (auto employee : employees) {
+                if (employee->getId() == id) {
                     throw ValidationException("El ID ya existe");
                 }
             }
             
             cin.ignore();
             cout << "Nombre: ";
-            getline(cin, nombre);
+            getline(cin, name);
             cout << "Telefono: ";
-            getline(cin, telefono);
+            getline(cin, phone);
             cout << "Usuario: ";
-            getline(cin, usuario);
+            getline(cin, username);
             cout << "Contrasena: ";
-            getline(cin, contrasena);
+            getline(cin, password);
             cout << "Cargo: ";
-            getline(cin, cargo);
+            getline(cin, position);
 
-            empleados.push_back(new Empleado(id, nombre, telefono, usuario, contrasena, cargo));
+            employees.push_back(new Empleado(id, name, phone, username, password, position));
             cout << "Empleado registrado exitosamente.\n";
         } catch (const exception& e) {
             cout << "Error: " << e.what() << endl;
-            --i;
+            --index;
         }
     }
 }
 
-//-----MENUS Y MAIN-----
+//-----MENUS AND MAIN-----
 
-// ==================== MENUS DEL SISTEMA ====================
+// ==================== SYSTEM MENUS ====================
 
 void menuClientes() {
-    int opcion;
+    int option;
     do {
         cout << "\n========================================\n";
         cout << "        MODULO GESTION DE CLIENTES      \n";
@@ -774,9 +774,9 @@ void menuClientes() {
         cout<<"7. Activar cliente\n";
         cout << "========================================\n";
         cout << "Seleccione una opcion: ";
-        cin >> opcion;
+        cin >> option;
 
-        switch (opcion) {
+        switch (option) {
         case 1: registrarCliente(); break;
         case 2: buscarCliente(); break;
         case 3: listarClientes(); break;
@@ -794,7 +794,7 @@ void menuClientes() {
 }
 
 void menuProductos() {
-    int opcion;
+    int option;
     do {
         cout << "\n========================================\n";
         cout << "       MODULO GESTION DE PRODUCTOS      \n";
@@ -808,35 +808,35 @@ void menuProductos() {
         cout << "7. Volver al menu principal\n";
         cout << "========================================\n";
         cout << "Seleccione una opcion: ";
-        cin >> opcion;
+        cin >> option;
 
-        switch (opcion) {
+        switch (option) {
         case 1: registrarProducto(); break;
         case 2: 
             cout << "\n=== INVENTARIO COMPLETO ===\n";
-            inventario.listar(); 
+            inventory.listar();
             break;
         case 3: {
-            string nombre;
+            string name;
             cout << "Nombre del producto a buscar: ";
             cin.ignore();
-            getline(cin, nombre);
-            inventario.buscarPorNombre(nombre);
+            getline(cin, name);
+            inventory.buscarPorNombre(name);
             break;
         }
-        case 4: inventario.verificarStockBajo(); break;
+        case 4: inventory.verificarStockBajo(); break;
         case 5: {
             int id;
             cout << "ID del producto a editar: ";
             cin >> id;
-            inventario.editar(id);
+            inventory.editar(id);
             break;
         }
         case 6: {
             int id;
             cout << "ID del producto a eliminar: ";
             cin >> id;
-            inventario.eliminar(id);
+            inventory.eliminar(id);
             break;
         }
         case 7: 
@@ -850,7 +850,7 @@ void menuProductos() {
 }
 
 void menuServicios() {
-    int opcion;
+    int option;
     do {
         cout << "\n========================================\n";
         cout << "       MODULO GESTION DE SERVICIOS      \n";
@@ -863,39 +863,39 @@ void menuServicios() {
         cout << "6. Volver al menu principal\n";
         cout << "========================================\n";
         cout << "Seleccione una opcion: ";
-        cin >> opcion;
+        cin >> option;
 
-        switch (opcion) {
+        switch (option) {
         case 1: registrarServicio(); break;
         case 2: {
             cout << "\n=== CATALOGO DE SERVICIOS ===\n";
-            bool hayServicios = false;
-            for (const auto& item : inventario.getColeccion()) {
-                Servicio* servicio = dynamic_cast<Servicio*>(item);
-                if (servicio) {
-                    cout << servicio->toString() << endl;
-                    hayServicios = true;
+            bool hasServices = false;
+            for (const auto& item : inventory.getColeccion()) {
+                Servicio* service = dynamic_cast<Servicio*>(item);
+                if (service) {
+                    cout << service->toString() << endl;
+                    hasServices = true;
                 }
             }
-            if (!hayServicios) {
+            if (!hasServices) {
                 cout << "No hay servicios registrados.\n";
             }
             break;
         }
         case 3: {
-            string nombre;
+            string name;
             cout << "Nombre del servicio a buscar: ";
             cin.ignore();
-            getline(cin, nombre);
-            bool encontrado = false;
-            for (const auto& item : inventario.getColeccion()) {
-                Servicio* servicio = dynamic_cast<Servicio*>(item);
-                if (servicio && servicio->getNombre().find(nombre) != string::npos) {
-                    cout << servicio->toString() << endl;
-                    encontrado = true;
+            getline(cin, name);
+            bool found = false;
+            for (const auto& item : inventory.getColeccion()) {
+                Servicio* service = dynamic_cast<Servicio*>(item);
+                if (service && service->getNombre().find(name) != string::npos) {
+                    cout << service->toString() << endl;
+                    found = true;
                 }
             }
-            if (!encontrado) {
+            if (!found) {
                 cout << "No se encontraron servicios con ese nombre.\n";
             }
             break;
@@ -905,19 +905,19 @@ void menuServicios() {
             cout << "ID del servicio a editar: ";
             cin >> id;
             try {
-                Item* item = inventario.buscar(id);
+                Item* item = inventory.buscar(id);
                 Servicio* servicio = dynamic_cast<Servicio*>(item);
                 if (!servicio) {
                     cout << "El ID no corresponde a un servicio.\n";
                 } else {
-                    double nuevoPrecio;
-                    int nuevaDuracion;
+                    double newPrice;
+                    int newDuration;
                     cout << "Nuevo precio: ";
-                    cin >> nuevoPrecio;
+                    cin >> newPrice;
                     cout << "Nueva duracion (minutos): ";
-                    cin >> nuevaDuracion;
-                    servicio->setPrecio(nuevoPrecio);
-                    servicio->setDuracionMin(nuevaDuracion);
+                    cin >> newDuration;
+                    servicio->setPrecio(newPrice);
+                    servicio->setDuracionMin(newDuration);
                     cout << "Servicio actualizado exitosamente.\n";
                 }
             } catch (const exception& e) {
@@ -929,7 +929,7 @@ void menuServicios() {
             int id;
             cout << "ID del servicio a eliminar: ";
             cin >> id;
-            inventario.eliminar(id);
+            inventory.eliminar(id);
             break;
         }
         case 6: 
@@ -943,7 +943,7 @@ void menuServicios() {
 }
 
 void menuCitas() {
-    int opcion;
+    int option;
     do {
         cout << "\n========================================\n";
         cout << "         MODULO GESTION DE CITAS        \n";
@@ -956,34 +956,34 @@ void menuCitas() {
         cout << "6. Volver al menu principal\n";
         cout << "========================================\n";
         cout << "Seleccione una opcion: ";
-        cin >> opcion;
+        cin >> option;
 
-        switch (opcion) {
+        switch (option) {
         case 1: agendarCita(); break;
         case 2: 
             cout << "\n=== TODAS LAS CITAS ===\n";
-            agenda.listar(); 
+            schedule.listar();
             break;
         case 3: {
-            int empId;
+            int employeeId;
             cout << "ID del empleado: ";
-            cin >> empId;
-            cout << "\n=== CITAS DEL EMPLEADO " << empId << " ===\n";
-            agenda.listarPorEmpleado(empId);
+            cin >> employeeId;
+            cout << "\n=== CITAS DEL EMPLEADO " << employeeId << " ===\n";
+            schedule.listarPorEmpleado(employeeId);
             break;
         }
         case 4: {
-            int id;
+            int appointmentId;
             cout << "ID de la cita a reprogramar: ";
-            cin >> id;
-            agenda.reprogramar(id);
+            cin >> appointmentId;
+            schedule.reprogramar(appointmentId);
             break;
         }
         case 5: {
-            int id;
+            int appointmentId;
             cout << "ID de la cita a cancelar: ";
-            cin >> id;
-            agenda.cancelar(id);
+            cin >> appointmentId;
+            schedule.cancelar(appointmentId);
             break;
         }
         case 6: 
@@ -996,10 +996,10 @@ void menuCitas() {
     } while (true);
 }
 
-bool menuLogin(Empleado*& sesionActiva) {
+bool menuLogin(Empleado*& activeSession) {
     string user, pass;
-    int intentos = 0;
-    const int MAX_INTENTOS = 3;
+    int attempts = 0;
+    const int MAX_ATTEMPTS = 3;
     
     cout << "\n========================================\n";
     cout << "     SISTEMA DE GESTION - BARBERIA      \n";
@@ -1007,27 +1007,27 @@ bool menuLogin(Empleado*& sesionActiva) {
     cout << "           INICIO DE SESION             \n";
     cout << "========================================\n";
     
-    while (intentos < MAX_INTENTOS) {
+    while (attempts < MAX_ATTEMPTS) {
         cout << "Usuario: ";
         cin >> user;
         cout << "Contrasena: ";
         cin >> pass;
 
-        for (auto e : empleados) {
-            if (e->autenticar(user, pass)) {
-                sesionActiva = e;
+        for (auto employee : employees) {
+            if (employee->autenticar(user, pass)) {
+                activeSession = employee;
                 cout << "\n========================================\n";
-                cout << "    BIENVENIDO AL SISTEMA, " << e->getNombre() << "\n";
-                cout << "    Rol: " << e->rol() << " (" << e->getCargo() << ")\n";
+                cout << "    BIENVENIDO AL SISTEMA, " << employee->getNombre() << "\n";
+                cout << "    Rol: " << employee->rol() << " (" << employee->getCargo() << ")\n";
                 cout << "========================================\n";
                 return true;
             }
         }
         
-        intentos++;
+        attempts++;
         cout << "Credenciales incorrectas. ";
-        if (intentos < MAX_INTENTOS) {
-            cout << "Intentos restantes: " << (MAX_INTENTOS - intentos) << endl;
+        if (attempts < MAX_ATTEMPTS) {
+            cout << "Intentos restantes: " << (MAX_ATTEMPTS - attempts) << endl;
         }
     }
     
@@ -1035,13 +1035,13 @@ bool menuLogin(Empleado*& sesionActiva) {
     return false;
 }
 
-void menuPrincipal(Empleado* sesion) {
-    int opcion;
+void menuPrincipal(Empleado* activeSession) {
+    int option;
     do {
         cout << "\n========================================\n";
         cout << "           MENU PRINCIPAL               \n";
         cout << "========================================\n";
-        cout << " Usuario: " << sesion->getNombre() << " (" << sesion->getCargo() << ")\n";
+        cout << " Usuario: " << activeSession->getNombre() << " (" << activeSession->getCargo() << ")\n";
         cout << "========================================\n";
         cout << "1. Gestion de Clientes\n";
         cout << "2. Gestion de Productos\n";
@@ -1051,9 +1051,9 @@ void menuPrincipal(Empleado* sesion) {
         cout << "6. Cerrar sesion\n";
         cout << "========================================\n";
         cout << "Seleccione una opcion: ";
-        cin >> opcion;
+        cin >> option;
 
-        switch (opcion) {
+        switch (option) {
         case 1: menuClientes(); break;
         case 2: menuProductos(); break;
         case 3: menuServicios(); break;
@@ -1061,36 +1061,36 @@ void menuPrincipal(Empleado* sesion) {
         case 5: {
             cout << "\n=== REPORTES Y CONSULTAS ===\n";
             cout << "1. Total de clientes activos: ";
-            int clientesActivos = 0;
-            for (auto c : clientes) {
-                if (c->isActivo()) clientesActivos++;
+            int activeClients = 0;
+            for (auto client : clients) {
+                if (client->isActivo()) activeClients++;
             }
-            cout << clientesActivos << endl;
+            cout << activeClients << endl;
             
             cout << "2. Total de productos en inventario: ";
-            int totalProductos = 0;
-            for (const auto& item : inventario.getColeccion()) {
-                if (dynamic_cast<Producto*>(item)) totalProductos++;
+            int totalProducts = 0;
+            for (const auto& item : inventory.getColeccion()) {
+                if (dynamic_cast<Producto*>(item)) totalProducts++;
             }
-            cout << totalProductos << endl;
+            cout << totalProducts << endl;
             
             cout << "3. Total de servicios disponibles: ";
-            int totalServicios = 0;
-            for (const auto& item : inventario.getColeccion()) {
-                if (dynamic_cast<Servicio*>(item)) totalServicios++;
+            int totalServices = 0;
+            for (const auto& item : inventory.getColeccion()) {
+                if (dynamic_cast<Servicio*>(item)) totalServices++;
             }
-            cout << totalServicios << endl;
+            cout << totalServices << endl;
             
             cout << "4. Total de citas agendadas: ";
-            int citasConfirmadas = 0;
-            for (const auto& cita : agenda.getColeccion()) {
-                if (cita->isConfirmada()) citasConfirmadas++;
+            int confirmedAppointments = 0;
+            for (const auto& appointment : schedule.getColeccion()) {
+                if (appointment->isConfirmada()) confirmedAppointments++;
             }
-            cout << citasConfirmadas << endl;
+            cout << confirmedAppointments << endl;
             
-            cout << "5. Total de empleados: " << empleados.size() << endl;
+            cout << "5. Total de empleados: " << employees.size() << endl;
             
-            inventario.verificarStockBajo();
+            inventory.verificarStockBajo();
             break;
         }
         case 6: 
@@ -1105,7 +1105,7 @@ void menuPrincipal(Empleado* sesion) {
     } while (true);
 }
 
-// ==================== FUNCION MAIN ====================
+// ==================== MAIN FUNCTION ====================
 int main() {
     cout << fixed << setprecision(2);
     
@@ -1115,25 +1115,25 @@ int main() {
     cout << "   Configuracion Inicial del Sistema    \n";
     cout << "========================================\n\n";
     
-    // Registro inicial de empleados
+    // Initial employee registration
     registrarEmpleados();
     
-    if (empleados.empty()) {
+    if (employees.empty()) {
         cout << "\nNo se registraron empleados. El sistema no puede iniciarse.\n";
         return 1;
     }
     
     // Login
-    Empleado* sesion = nullptr;
-    if (menuLogin(sesion)) {
-        menuPrincipal(sesion);
+    Empleado* activeSession = nullptr;
+    if (menuLogin(activeSession)) {
+        menuPrincipal(activeSession);
     }
     
-    // Liberar memoria
+    // Release memory
     cout << "\nLiberando recursos del sistema...\n";
-    for (auto e : empleados) delete e;
-    for (auto c : clientes) delete c;
-    // inventario y agenda se liberan automaticamente con sus destructores
+    for (auto employee : employees) delete employee;
+    for (auto client : clients) delete client;
+    // Inventory and schedule are released automatically by their destructors.
     
     cout << "Sistema cerrado exitosamente.\n";
     cout << "========================================\n";
