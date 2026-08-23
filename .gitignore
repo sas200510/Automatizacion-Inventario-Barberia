@@ -1,0 +1,25 @@
+# Ejecutables compilados
+*.exe
+*.out
+*.app
+
+# Archivos objeto y de compilacion
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.dSYM/
+
+# Archivos temporales de IDE y editores
+.vscode/
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
